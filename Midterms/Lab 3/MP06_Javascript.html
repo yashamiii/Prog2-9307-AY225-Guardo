@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CSV Dataset Processor</title>
+
+<style>
+body{
+    font-family: Arial;
+    margin:40px;
+}
+
+button{
+    margin-top:10px;
+}
+
+#output{
+    margin-top:20px;
+    padding:10px;
+    border:1px solid gray;
+    white-space:pre;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>CSV Dataset Processor</h2>
+
+<!-- File Upload -->
+<label>Select CSV File:</label>
+<input type="file" id="csvFile"><br><br>
+
+<!-- Column Input -->
+<label>Column Index:</label>
+<input type="number" id="columnIndex"><br><br>
+
+<!-- Keyword Input -->
+<label>Keyword (for filtering):</label>
+<input type="text" id="keyword"><br><br>
+
+<!-- Buttons for Machine Problems -->
+<button onclick="uniqueValues()">MP06 - Unique Values</button>
+<button onclick="sortRecords()">MP07 - Sort Records</button>
+<button onclick="filterRecords()">MP08 - Filter Records</button>
+
+<h3>Output</h3>
+<div id="output"></div>
+
+<script>
+
+/*
+Variables:
+csvData - stores parsed CSV rows
+columnIndex - user selected column
+keyword - filter keyword
+*/
+
+let csvData = [];
+
+/* Function to read CSV file */
+function readCSV(callback){
+
+    const file = document.getElementById("csvFile").files[0];
+
+    if(!file){
+        alert("Please select a CSV file");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+
+        const text = e.target.result;
+
+        const lines = text.split("\n");
+
+        csvData = lines.map(line => line.split(","));
+
+        callback();
+    };
+
+    reader.readAsText(file);
+}
+
+/* MP06 Unique Values */
+function uniqueValues(){
+
+    readCSV(()=>{
+
+        const column = document.getElementById("columnIndex").value;
+
+        let unique = new Set();
+
+        csvData.forEach(row => {
+            if(row[column]){
+                unique.add(row[column]);
+            }
+        });
+
+        document.getElementById("output").textContent =
+            "Unique Values:\n" + [...unique].join("\n");
+    });
+}
+
+/* MP07 Sort Records */
+function sortRecords(){
+
+    readCSV(()=>{
+
+        const column = document.getElementById("columnIndex").value;
+
+        csvData.sort((a,b)=>{
+            return a[column].localeCompare(b[column]);
+        });
+
+        const result = csvData.map(row => row.join(",")).join("\n");
+
+        document.getElementById("output").textContent = result;
+    });
+}
+
+/* MP08 Filter Records */
+function filterRecords(){
+
+    readCSV(()=>{
+
+        const keyword = document.getElementById("keyword").value.toLowerCase();
+
+        const filtered = csvData.filter(row =>
+            row.join(",").toLowerCase().includes(keyword)
+        );
+
+        const result = filtered.map(row => row.join(",")).join("\n");
+
+        document.getElementById("output").textContent = result;
+    });
+}
+
+</script>
+
+</body>
+</html>
